@@ -1,0 +1,149 @@
+/**
+ * Created by srush on 6/11/2017.
+ */
+public class Sudoku {
+
+    static int N=9;
+
+    static int grid[][] = { { 3, 0, 6, 5, 0, 8, 4, 0, 0 }, //
+            { 5, 2, 0, 0, 0, 0, 0, 0, 0 }, //
+            { 0, 8, 7, 0, 0, 0, 0, 3, 1 }, //
+            { 0, 0, 3, 0, 1, 0, 0, 8, 0 }, //
+            { 9, 0, 0, 8, 6, 3, 0, 0, 5 }, //
+            { 0, 5, 0, 0, 9, 0, 6, 0, 0 }, //
+            { 1, 3, 0, 0, 0, 0, 2, 5, 0 }, //
+            { 0, 0, 0, 0, 0, 0, 0, 7, 4 }, //
+            { 0, 0, 5, 2, 0, 6, 3, 0, 0 } };
+
+
+    static class Cell{
+        int row,col;
+
+        public Cell(int row,int col){
+            super();
+            this.row = row;
+            this.col=col;
+        }
+
+        public String toString(){
+            return "Cell [ row="+row+", col="+col+"]";
+        }
+
+    };
+
+
+
+    static boolean isValid(Cell cell,int value){
+        if(grid[cell.row][cell.col] != 0){
+            throw new RuntimeException("Cannot solve a cell which already has a value in it!!");
+        }
+
+        //Checking if the value is already present in any of the column in the same row
+        for(int c=0;c<9;c++){
+            if(grid[cell.row][c] == value){
+                return false;
+            }
+        }
+
+        //Checking if the value is already present in any of the row in the same column
+        for(int r=0;r<9;r++){
+            if(grid[r][cell.col]==value){
+                return false;
+            }
+        }
+
+        //Checking if this value is already present in this grid
+        //Get the grid border values to check
+
+        int x1 = 3*(cell.row/3);
+        int y1 = 3*(cell.col/3);
+
+        int x2 = x1+2;
+        int y2 = y1+2;
+
+        for(int x=x1;x<=x2;x++){
+            for(int y=y1;y<=y2;y++){
+                if(grid[x][y] == value){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    static Cell getNextCell(Cell current){
+        int row=current.row;
+        int col=current.col;
+
+        col++;
+
+        if(col > 8){
+            col=0;
+            row++;
+        }
+
+        if(row > 8){
+            return null;
+        }
+
+        Cell next=new Cell(row,col);
+        return next;
+
+    }
+
+    static boolean solve(Cell current) {
+
+
+        if (current == null)
+            return true;
+
+
+        if (grid[current.row][current.col] != 0) {
+            return solve(getNextCell(current));
+        }
+
+        for (int i = 1; i <= 9; i++) {
+
+            boolean valid = isValid(current, i);
+
+            if (!valid)
+                continue;
+
+
+            grid[current.row][current.col] = i;
+
+
+            boolean solved = solve(getNextCell(current));
+
+            if (solved)
+                return true;
+            else
+                grid[current.row][current.col] = 0; // reset
+
+        }
+
+        return false;
+    }
+
+    public static void main(String args[]){
+
+        boolean solved=solve(new Cell(0,0));
+
+        if(!solved){
+            System.out.println("This Sudoku puzzle cannot be solved");
+            return;
+        }
+        System.out.println("Sudoku puzzle is solved. Here is the solution!!");
+        printSolution(grid);
+    }
+
+    static void printSolution(int[][] grid){
+        for(int row=0;row<N;row++){
+            for(int col=0;col<N;col++){
+                System.out.print(grid[row][col]+" "+" | ");
+            }System.out.println();
+        }
+    }
+
+}
